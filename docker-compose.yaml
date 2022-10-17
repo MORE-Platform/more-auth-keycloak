@@ -116,6 +116,7 @@ services:
       WATCHTOWER_CLEANUP: "true"
       WATCHTOWER_POLL_INTERVAL: "30"
       WATCHTOWER_NO_STARTUP_MESSAGE: "true"
+      WATCHTOWER_ROLLING_RESTART: "true"
     volumes:
       - type: bind
         source: /var/run/docker.sock
