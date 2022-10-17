@@ -17,4 +17,4 @@ WORKDIR /opt/keycloak
 ENV KC_HOSTNAME=auth.more.redlink.io
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-CMD "start"
+CMD [ "start" ]

@@ -3,10 +3,13 @@ name: more-auth
 services:
   keycloak:
     image: ghcr.io/more-platform/auth-keycloak:latest
+    depends_on:
+      database:
+        condition: service_healthy
     labels:
       'com.centurylinklabs.watchtower.enable': "true"
       'traefik.enable': "true"
-      'traefik.http.routers.mmb-backend.rule': "Host(`auth.more.redlink.io`)"
+      'traefik.http.routers.keycloak.rule': "Host(`auth.more.redlink.io`)"
       'traefik.http.routers.keycloak.entrypoints': "ssl"
       'traefik.http.routers.keycloak.tls.certResolver': 'le'
     environment:
@@ -19,6 +22,9 @@ services:
       KC_PROXY: 'edge'
       KC_HOSTNAME_STRICT: 'true'
       KC_HOSTNAME_STRICT_BACKCHANNEL: 'true'
+      # Initial Admin User/Password (will be changed on first login)
+      KEYCLOAK_ADMIN: 'redlink'
+      KEYCLOAK_ADMIN_PASSWORD: 'ut2ouwieV7iy'
     logging: &logging
       options:
         max-size: "10M"
