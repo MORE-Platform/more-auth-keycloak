@@ -1,0 +1,112 @@
+name: more-auth
+
+services:
+  keycloak:
+    image: ghcr.io/more-platform/auth-keycloak:latest
+    labels:
+      'com.centurylinklabs.watchtower.enable': "true"
+      'traefik.enable': "true"
+      'traefik.http.routers.mmb-backend.rule': "Host(`auth.more.redlink.io`)"
+      'traefik.http.routers.keycloak.entrypoints': "ssl"
+      'traefik.http.routers.keycloak.tls.certResolver': 'le'
+    environment:
+      KC_HOSTNAME: 'auth.more.redlink.io'
+      KC_DB_URL_HOST: 'database'
+      KC_DB_URL_DATABASE: 'keycloak'
+      KC_DB_USERNAME: 'keycloak'
+      KC_DB_PASSWORD: 'secretPassword123'
+      # SSL is handled by ingress
+      KC_PROXY: 'edge'
+      KC_HOSTNAME_STRICT: 'true'
+      KC_HOSTNAME_STRICT_BACKCHANNEL: 'true'
+    logging: &logging
+      options:
+        max-size: "10M"
+        max-file: "5"
+        compress: "true"
+
+  database:
+    image: postgres:15-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 1s
+      retries: 5
+    environment:
+      POSTGRES_PASSWORD: secretPassword123
+      POSTGRES_USER: keycloak
+      POSTGRES_DB: keycloak
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+    logging: *logging
+
+  ingress:
+    image: traefik:v2.8
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost$${TRAEFIK_ENTRYPOINTS_TRAEFIK_ADDRESS:-:8080}/ping || exit 1"]
+      timeout: 2s
+      interval: 15s
+      retries: 3
+    environment:
+      TRAEFIK_PING: "true"
+      # docker-config
+      TRAEFIK_PROVIDERS_DOCKER: "true"
+      TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT: "false"
+      # http
+      TRAEFIK_ENTRYPOINTS_WEB_ADDRESS: ":80"
+      # https
+      TRAEFIK_ENTRYPOINTS_SSL_ADDRESS: ":443"
+      TRAEFIK_ENTRYPOINTS_SSL_HTTP_TLS: "true"
+      # let's-encrypt config
+      TRAEFIK_CERTIFICATESRESOLVERS_LE_ACME_EMAIL: "${LE_MAIL-infra@redlink.io}"
+      TRAEFIK_CERTIFICATESRESOLVERS_LE_ACME_HTTPCHALLENGE_ENTRYPOINT: "web"
+      TRAEFIK_CERTIFICATESRESOLVERS_LE_ACME_STORAGE: "/etc/traefik/acme/acme${ENV_SUFFIX--test}.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    labels:
+      'com.centurylinklabs.watchtower.enable': "true"
+      'traefik.enable': "true"
+      'traefik.http.routers.redirect-to-ssl.priority': "1"
+      'traefik.http.routers.redirect-to-ssl.rule': "PathPrefix(`/`)"
+      'traefik.http.routers.redirect-to-ssl.service': "noop@internal"
+      'traefik.http.routers.redirect-to-ssl.entrypoints': "web"
+      'traefik.http.routers.redirect-to-ssl.middlewares': "redirect-to-ssl"
+      'traefik.http.middlewares.redirect-to-ssl.redirectscheme.scheme': "https"
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+      - type: volume
+        source: letsencrypt
+        target: /etc/traefik/acme
+    logging: *logging
+
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    labels:
+      'com.centurylinklabs.watchtower.enable': "true"
+    environment:
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: "30"
+      WATCHTOWER_NO_STARTUP_MESSAGE: "true"
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: bind
+        source: /root/.docker/config.json
+        target: /config.json
+        read_only: true
+    logging: *logging
+
+volumes:
+  postgres-data:
+  letsencrypt:
