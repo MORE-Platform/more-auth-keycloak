@@ -6,6 +6,19 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8080/health/ready" ]
+      interval: 10s
+      timeout: 1s
+      retries: 3
+      start_period: 15s
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 15s
+        order: stop-first
+
     labels:
       'com.centurylinklabs.watchtower.enable': "true"
       'traefik.enable': "true"
