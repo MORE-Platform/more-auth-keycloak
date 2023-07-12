@@ -79,6 +79,10 @@ LIMESURVEY_URL=https://limesurvey.example.com/
    OAUTH2_SERVER: https://auth.example.com/realms/More-Platform
    OAUTH2_CLIENT_ID: study-manager
    OAUTH2_CLIENT_SECRET: ''
+
+   MORE_FE_KC_SERVER: https://auth.example.com/
+   MORE_FE_KC_REALM: More-Platform
+   MORE_FE_KC_CLIENT_ID: study-manager
   ```
 
 * For Limesurvey use the following settings:
