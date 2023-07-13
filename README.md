@@ -40,9 +40,9 @@ However, after the first startup, some initial configuration-steps are required 
 
 Some required variables/values during the setup:
 ```dotenv
-AUTH_URL=https://auth.example.com/
-STUDY_MANAGER_URL=https://study-manager.example.com/
-LIMESURVEY_URL=https://limesurvey.example.com/
+AUTH_URL: https://auth.example.com/
+STUDY_MANAGER_URL: https://study-manager.example.com/
+LIMESURVEY_URL: https://limesurvey.example.com/
 ```
 1. Point your browser to https://auth.example.com/ and login with the init-credentials from the startup configuration.
 2. Create a new **Realm**: `MORE-Platform` and switch to the new Realm to configure it:
@@ -68,7 +68,7 @@ LIMESURVEY_URL=https://limesurvey.example.com/
     * Provide a name and description if applicable, then klick `Next`
     * Enable `Client authentication` and the `Standard flow`, then `Save` the realm.
     * In the "General Settings"-Section, enter the `${LIMESURVEY_URL}` from above into "Root URL", "Home URL"
-    * Add `${LIMESURVEY_URL}/*` to the "Valid redirect URIs"
+    * Add `${LIMESURVEY_URL}/index.php/admin/authentication/sa/login` to the "Valid redirect URIs"
     * Press `Save` again.
     * Take a note of the `Client secret` on the `Credentials`-tab.
 
