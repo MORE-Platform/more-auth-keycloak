@@ -29,15 +29,15 @@ services:
       KC_HOSTNAME: 'auth.more.redlink.io'
       KC_DB_URL_HOST: 'database'
       KC_DB_URL_DATABASE: 'keycloak'
-      KC_DB_USERNAME: 'keycloak'
-      KC_DB_PASSWORD: 'secretPassword123'
+      KC_DB_USERNAME: '${DB_USERNAME:-keycloak}'
+      KC_DB_PASSWORD: '${DB_PASSWORD:-secretPassword123}'
       # SSL is handled by ingress
       KC_PROXY: 'edge'
       KC_HOSTNAME_STRICT: 'true'
       KC_HOSTNAME_STRICT_BACKCHANNEL: 'true'
       # Initial Admin User/Password (will be changed on first login)
-      KEYCLOAK_ADMIN: 'redlink'
-      KEYCLOAK_ADMIN_PASSWORD: 'ut2ouwieV7iy'
+      KEYCLOAK_ADMIN: 'kc-admin'
+      KEYCLOAK_ADMIN_PASSWORD: 'kc-admin'
     logging: &logging
       options:
         max-size: "10M"
@@ -53,8 +53,8 @@ services:
       timeout: 1s
       retries: 5
     environment:
-      POSTGRES_PASSWORD: secretPassword123
-      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secretPassword123}
+      POSTGRES_USER: ${DB_USERNAME:-keycloak}
       POSTGRES_DB: keycloak
     volumes:
       - type: volume
