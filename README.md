@@ -94,3 +94,23 @@ LIMESURVEY_URL: https://limesurvey.example.com/
    ACCESS_TOKEN_URL: https://auth.example.com/realms/More-Platform/protocol/openid-connect/token
    USER_DETAILS_URL: https://auth.example.com/realms/More-Platform/protocol/openid-connect/userinfo
   ```
+
+---
+
+## Deployment and Tagging
+
+To ensure safe deployments, this repository uses a tagging strategy.
+
+### Tag Format
+Tags must follow the format `v<Major>.<Minor>.<Patch>`.
+Example: `v1.0.1`
+
+### GitHub Actions
+The Docker image is automatically built and pushed to the Container registry when:
+- A push occurs on the following branches: `main`, `develop`, `redlink`, `staging`.
+- A tag matching `v*.*.*` is pushed.
+
+For tags, the `docker-build` workflow will automatically extract semver information and tag the Docker image with:
+- `v<Major>.<Minor>.<Patch>`
+- `v<Major>.<Minor>`
+- `v<Major>`
