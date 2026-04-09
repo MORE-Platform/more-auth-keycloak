@@ -107,7 +107,7 @@ Example: `v1.0.1`
 
 ### GitHub Actions
 The Docker image is automatically built and pushed to the Container registry when:
-- A push occurs on the following branches: `main`, `develop`, `redlink`, `staging`.
+- A push occurs on the following branches: `main`, `develop`.
 - A tag matching `v*.*.*` is pushed.
 
 For tags, the `docker-build` workflow will automatically extract semver information and tag the Docker image with:
